@@ -22,6 +22,7 @@ import {
   getLiverStatus,
   calculateHealthScore,
   getOverallHealthAssessment,
+  getEvaluationInfo,
 } from "../utils/healthCalculations";
 import BMIChart from "./charts/BMIChart";
 import HealthScoreChart from "./charts/HealthScoreChart";
@@ -100,32 +101,23 @@ const CheckupResults = ({ finalData, onNewQuery }: CheckupResultsProps) => {
     finalData.referenceList
   );
 
-  // 판정 결과 표시를 위한 함수
-  const getEvaluationDisplay = (evaluation?: string) => {
-    const evaluationMap: Record<
-      string,
-      { label: string; description: string }
-    > = {
-      정A: { label: "정상 A", description: "정상" },
-      정B: { label: "정상 B", description: "정상" },
-      주의: { label: "주의", description: "생활습관 개선 필요" },
-      의심: { label: "질환의심", description: "정밀검사 권장" },
-      "고∙당": { label: "고혈압∙당뇨", description: "치료 및 관리 필요" },
-      유질: { label: "유소견질환", description: "지속적 관리 필요" },
-      일반: { label: "일반검진", description: "" },
-      직업: { label: "직업성질환", description: "" },
-      단순: { label: "단순검진", description: "" },
-      휴무: { label: "휴무", description: "" },
-    };
+  const evaluationInfo = getEvaluationInfo(overview.evaluation);
 
-    const result = evaluationMap[evaluation || ""] || {
-      label: "미정",
-      description: "",
-    };
-    return result;
+  // severity에 따른 스타일 함수
+  const getSeverityStyle = (severity: string) => {
+    switch (severity) {
+      case "normal":
+        return "bg-green-100 text-green-800";
+      case "caution":
+        return "bg-yellow-100 text-yellow-800";
+      case "warning":
+        return "bg-orange-100 text-orange-800";
+      case "danger":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
   };
-
-  const evaluationInfo = getEvaluationDisplay(overview.evaluation);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -146,17 +138,9 @@ const CheckupResults = ({ finalData, onNewQuery }: CheckupResultsProps) => {
             )}
           </div>
           <div
-            className={`px-4 py-2 rounded-full text-sm font-medium ${
-              overview.evaluation === "정A" || overview.evaluation === "정B"
-                ? "bg-green-100 text-green-800"
-                : overview.evaluation === "주의"
-                ? "bg-yellow-100 text-yellow-800"
-                : overview.evaluation === "의심" ||
-                  overview.evaluation === "고∙당" ||
-                  overview.evaluation === "유질"
-                ? "bg-red-100 text-red-800"
-                : "bg-gray-100 text-gray-800"
-            }`}
+            className={`px-4 py-2 rounded-full text-sm font-medium ${getSeverityStyle(
+              evaluationInfo.severity
+            )}`}
           >
             <div className="text-center">
               <div className="font-semibold">{evaluationInfo.label}</div>

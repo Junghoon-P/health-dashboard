@@ -1,5 +1,62 @@
 import type { Overview, Reference } from "@/features/checkup/type";
 
+// 건강검진 판정 타입
+export type EvaluationType =
+  | "정A"
+  | "정B"
+  | "주의"
+  | "의심"
+  | "고∙당"
+  | "유질"
+  | "일반"
+  | "직업"
+  | "단순"
+  | "휴무";
+
+// 판정 정보 타입
+export type EvaluationInfo = {
+  label: string;
+  description: string;
+  severity: "normal" | "caution" | "warning" | "danger";
+};
+
+// 건강검진 판정 매핑
+export const EVALUATION_MAP: Record<EvaluationType, EvaluationInfo> = {
+  정A: { label: "정상 A", description: "정상", severity: "normal" },
+  정B: { label: "정상 B", description: "정상", severity: "normal" },
+  주의: {
+    label: "주의",
+    description: "생활습관 개선 필요",
+    severity: "caution",
+  },
+  의심: { label: "질환의심", description: "정밀검사 권장", severity: "danger" },
+  "고∙당": {
+    label: "고혈압∙당뇨",
+    description: "치료 및 관리 필요",
+    severity: "danger",
+  },
+  유질: {
+    label: "유소견질환",
+    description: "지속적 관리 필요",
+    severity: "warning",
+  },
+  일반: { label: "일반검진", description: "", severity: "normal" },
+  직업: { label: "직업성질환", description: "", severity: "normal" },
+  단순: { label: "단순검진", description: "", severity: "normal" },
+  휴무: { label: "휴무", description: "", severity: "normal" },
+};
+
+// 판정 정보 조회 함수
+export const getEvaluationInfo = (evaluation?: string): EvaluationInfo => {
+  return (
+    EVALUATION_MAP[evaluation as EvaluationType] || {
+      label: "미정",
+      description: "",
+      severity: "normal",
+    }
+  );
+};
+
 // BMI 계산 및 상태 판정
 export const calculateBMI = (height?: string, weight?: string) => {
   if (!height || !weight) return null;
