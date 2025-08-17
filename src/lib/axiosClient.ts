@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const axiosClient = axios.create({
-  baseURL: "https://api.candiy.io",
+  baseURL: "/candiy", // <-- 프록시 경유
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,14 +11,16 @@ export const axiosClient = axios.create({
 // 요청 인터셉터: API Key 자동 부착
 axiosClient.interceptors.request.use((config) => {
   const apiKey = import.meta.env.VITE_CANDIY_API_KEY as string | undefined;
+
   if (!apiKey) {
-    // 키 없으면 명확하게 에러
     return Promise.reject(
       new Error("환경변수 VITE_CANDIY_API_KEY가 설정되지 않았습니다.")
     );
   }
+
   config.headers = config.headers ?? {};
   config.headers["x-api-key"] = apiKey;
+
   return config;
 });
 
