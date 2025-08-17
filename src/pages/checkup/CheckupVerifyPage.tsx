@@ -8,9 +8,17 @@ const CheckupVerifyPage = () => {
   const navigate = useNavigate();
   const { shouldRedirectTo } = useCheckupNavigation();
 
-  const { step, multiFactorInfo, isLoading, error } = useCheckupStore();
+  const { step, multiFactorInfo, isLoading, error, setStep } =
+    useCheckupStore();
 
   const { completeAuth, cancelAuth } = useCheckupApi();
+
+  // 에러 발생 시 에러 페이지로 리다이렉트
+  useEffect(() => {
+    if (error && step !== "error") {
+      setStep("error");
+    }
+  }, [error, step, setStep]);
 
   // step이나 multiFactorInfo 변화에 따른 자동 네비게이션
   useEffect(() => {
@@ -49,14 +57,6 @@ const CheckupVerifyPage = () => {
 
       <section className="mx-auto min-w-[320px] max-w-6xl px-4 py-8">
         <h2 className="text-2xl font-bold mb-6">본인인증 진행</h2>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <p className="text-red-700">
-              {error.message || "오류가 발생했습니다."}
-            </p>
-          </div>
-        )}
 
         <AuthPendingState
           multiFactorInfo={multiFactorInfo}
