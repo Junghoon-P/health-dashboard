@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -72,8 +72,9 @@ const HealthCard = ({
 );
 
 const CheckupResults = ({ finalData, onNewQuery }: CheckupResultsProps) => {
-  console.log("finalData", finalData);
-  if (!finalData?.overviewList?.[0]) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  if (!finalData?.overviewList?.length) {
     return (
       <div className="rounded-2xl border bg-white shadow-sm p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -90,7 +91,7 @@ const CheckupResults = ({ finalData, onNewQuery }: CheckupResultsProps) => {
     );
   }
 
-  const overview = finalData.overviewList[0]; // 최신 검진 결과
+  const overview = finalData.overviewList[selectedIndex];
   const bmi = calculateBMI(overview.height, overview.weight);
   const bloodPressure = getBloodPressureStatus(overview.bloodPressure);
   const bloodSugar = getBloodSugarStatus(overview.fastingBloodGlucose);
@@ -106,12 +107,48 @@ const CheckupResults = ({ finalData, onNewQuery }: CheckupResultsProps) => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* 검진 결과 선택 리스트 */}
+      {finalData.overviewList.length > 1 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            검진 결과 선택
+          </h3>
+          <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+            {finalData.overviewList.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedIndex(index)}
+                className={`flex items-center justify-between p-2 rounded-lg border-2 transition-all text-left ${
+                  selectedIndex === index
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-gray-300 bg-white"
+                }`}
+              >
+                <div className="font-medium text-gray-900">
+                  {index + 1}번째 검진
+                </div>
+                {item.checkupDate && (
+                  <div className="text-sm text-gray-600 mt-1">
+                    {item.checkupDate}
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 헤더 */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
               건강검진 결과
+              {finalData.overviewList.length > 1 && (
+                <span className="ml-2 text-lg text-blue-600">
+                  ({selectedIndex + 1}/{finalData.overviewList.length})
+                </span>
+              )}
             </h2>
             {finalData.patientName && (
               <p className="text-gray-600">검진대상: {finalData.patientName}</p>
