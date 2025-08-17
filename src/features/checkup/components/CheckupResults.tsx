@@ -21,6 +21,7 @@ import {
   getCholesterolStatus,
   getLiverStatus,
   calculateHealthScore,
+  getOverallHealthAssessment,
 } from "../utils/healthCalculations";
 import BMIChart from "./charts/BMIChart";
 import HealthScoreChart from "./charts/HealthScoreChart";
@@ -94,6 +95,37 @@ const CheckupResults = ({ finalData, onNewQuery }: CheckupResultsProps) => {
   const cholesterol = getCholesterolStatus(overview);
   const liver = getLiverStatus(overview);
   const healthScore = calculateHealthScore(overview);
+  const healthAssessment = getOverallHealthAssessment(
+    overview,
+    finalData.referenceList
+  );
+
+  // 판정 결과 표시를 위한 함수
+  const getEvaluationDisplay = (evaluation?: string) => {
+    const evaluationMap: Record<
+      string,
+      { label: string; description: string }
+    > = {
+      정A: { label: "정상 A", description: "정상" },
+      정B: { label: "정상 B", description: "정상" },
+      주의: { label: "주의", description: "생활습관 개선 필요" },
+      의심: { label: "질환의심", description: "정밀검사 권장" },
+      "고∙당": { label: "고혈압∙당뇨", description: "치료 및 관리 필요" },
+      유질: { label: "유소견질환", description: "지속적 관리 필요" },
+      일반: { label: "일반검진", description: "" },
+      직업: { label: "직업성질환", description: "" },
+      단순: { label: "단순검진", description: "" },
+      휴무: { label: "휴무", description: "" },
+    };
+
+    const result = evaluationMap[evaluation || ""] || {
+      label: "미정",
+      description: "",
+    };
+    return result;
+  };
+
+  const evaluationInfo = getEvaluationDisplay(overview.evaluation);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -119,11 +151,71 @@ const CheckupResults = ({ finalData, onNewQuery }: CheckupResultsProps) => {
                 ? "bg-green-100 text-green-800"
                 : overview.evaluation === "주의"
                 ? "bg-yellow-100 text-yellow-800"
-                : "bg-red-100 text-red-800"
+                : overview.evaluation === "의심" ||
+                  overview.evaluation === "고∙당" ||
+                  overview.evaluation === "유질"
+                ? "bg-red-100 text-red-800"
+                : "bg-gray-100 text-gray-800"
             }`}
           >
-            판정: {overview.evaluation || "미정"}
+            <div className="text-center">
+              <div className="font-semibold">{evaluationInfo.label}</div>
+              {evaluationInfo.description && (
+                <div className="text-xs opacity-80">
+                  {evaluationInfo.description}
+                </div>
+              )}
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* 종합 건강 평가 메시지 */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          💡 건강 상태 요약
+        </h3>
+        <div className="space-y-3">
+          <div
+            className={`p-3 rounded-lg ${
+              healthAssessment.score >= 80
+                ? "bg-green-50 border border-green-200"
+                : healthAssessment.score >= 60
+                ? "bg-yellow-50 border border-yellow-200"
+                : "bg-red-50 border border-red-200"
+            }`}
+          >
+            <p
+              className={`font-medium ${
+                healthAssessment.score >= 80
+                  ? "text-green-800"
+                  : healthAssessment.score >= 60
+                  ? "text-yellow-800"
+                  : "text-red-800"
+              }`}
+            >
+              {healthAssessment.assessment}
+            </p>
+          </div>
+
+          {healthAssessment.messages.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="font-medium text-gray-700 text-sm">
+                세부 건강 조언:
+              </h4>
+              <ul className="space-y-1">
+                {healthAssessment.messages.map((message, index) => (
+                  <li
+                    key={index}
+                    className="text-sm text-gray-600 flex items-start"
+                  >
+                    <span className="text-blue-500 mr-2">•</span>
+                    <span>{message}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 

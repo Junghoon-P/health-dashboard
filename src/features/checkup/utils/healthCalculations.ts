@@ -1,4 +1,4 @@
-import type { Overview } from "@/features/checkup/type";
+import type { Overview, Reference } from "@/features/checkup/type";
 
 // BMI 계산 및 상태 판정
 export const calculateBMI = (height?: string, weight?: string) => {
@@ -166,4 +166,143 @@ export const calculateHealthScore = (overview: Overview) => {
   }
 
   return Math.max(score, 0);
+};
+
+// referenceList를 활용한 건강상태 메시지 생성
+export const generateHealthMessages = (
+  overview: Overview,
+  referenceList?: Reference[]
+) => {
+  const messages: string[] = [];
+
+  if (!referenceList) return messages;
+
+  // 참고치에서 정상A, 정상B, 질환의심 기준 찾기
+  const normalA = referenceList.find((ref) => ref.refType === "정상A");
+  const normalB = referenceList.find((ref) => ref.refType === "정상B");
+  const disease = referenceList.find((ref) => ref.refType === "질환의심");
+
+  // BMI 메시지
+  const bmi = calculateBMI(overview.height, overview.weight);
+  if (bmi) {
+    if (bmi.status === "저체중") {
+      messages.push(
+        "체중이 부족합니다. 균형 잡힌 식단과 근력 운동을 추천합니다."
+      );
+    } else if (bmi.status === "과체중" || bmi.status === "비만") {
+      messages.push(
+        "체중 관리가 필요합니다. 유산소 운동과 식단 조절을 권장합니다."
+      );
+    } else {
+      messages.push("BMI가 정상 범위입니다. 현재 상태를 유지하세요.");
+    }
+  }
+
+  // 혈압 메시지
+  const bp = getBloodPressureStatus(overview.bloodPressure);
+  if (bp) {
+    if (bp.status === "위험") {
+      messages.push(
+        "혈압이 높습니다. 의료진 상담과 생활습관 개선이 필요합니다."
+      );
+    } else if (bp.status === "주의") {
+      messages.push(
+        "혈압이 약간 높습니다. 염분 섭취를 줄이고 규칙적인 운동을 하세요."
+      );
+    } else {
+      messages.push("혈압이 정상 범위입니다.");
+    }
+  }
+
+  // 혈당 메시지
+  const bs = getBloodSugarStatus(overview.fastingBloodGlucose);
+  if (bs) {
+    if (bs.status === "당뇨") {
+      messages.push(
+        "혈당이 당뇨 범위입니다. 즉시 전문의 상담을 받으시기 바랍니다."
+      );
+    } else if (bs.status === "전당뇨") {
+      messages.push(
+        "혈당이 높습니다. 당분 섭취를 줄이고 체중 관리가 필요합니다."
+      );
+    } else {
+      messages.push("혈당이 정상 범위입니다.");
+    }
+  }
+
+  // 콜레스테롤 메시지
+  const chol = getCholesterolStatus(overview);
+  const abnormalChol = [];
+  if (chol.total?.status !== "정상") abnormalChol.push("총콜레스테롤");
+  if (chol.ldl?.status !== "정상") abnormalChol.push("LDL");
+  if (chol.hdl?.status !== "정상") abnormalChol.push("HDL");
+  if (chol.triglyceride?.status !== "정상") abnormalChol.push("중성지방");
+
+  if (abnormalChol.length > 0) {
+    messages.push(
+      `${abnormalChol.join(
+        ", "
+      )} 수치에 주의가 필요합니다. 기름진 음식을 줄이고 생선, 견과류 섭취를 늘리세요.`
+    );
+  } else if (chol.total || chol.hdl || chol.ldl || chol.triglyceride) {
+    messages.push("콜레스테롤 수치가 양호합니다.");
+  }
+
+  // 간기능 메시지
+  const liver = getLiverStatus(overview);
+  const abnormalLiver = [];
+  if (liver.ast?.status !== "정상") abnormalLiver.push("AST");
+  if (liver.alt?.status !== "정상") abnormalLiver.push("ALT");
+  if (liver.gpt?.status !== "정상") abnormalLiver.push("γ-GTP");
+
+  if (abnormalLiver.length > 0) {
+    messages.push(
+      `간기능 수치(${abnormalLiver.join(
+        ", "
+      )})에 이상이 있습니다. 금주와 규칙적인 생활을 권장합니다.`
+    );
+  } else if (liver.ast || liver.alt || liver.gpt) {
+    messages.push("간기능 수치가 정상입니다.");
+  }
+
+  // 기타 검사 결과 메시지
+  if (overview.chestXrayResult && !overview.chestXrayResult.includes("정상")) {
+    messages.push(
+      "흉부 검사에서 이상 소견이 있습니다. 전문의 상담을 받으시기 바랍니다."
+    );
+  }
+
+  if (overview.proteinuria && overview.proteinuria !== "음성") {
+    messages.push(
+      "요단백 검사에서 이상이 발견되었습니다. 신장 기능 검사를 권장합니다."
+    );
+  }
+
+  return messages;
+};
+
+// 종합 건강 상태 평가
+export const getOverallHealthAssessment = (
+  overview: Overview,
+  referenceList?: Reference[]
+) => {
+  const healthScore = calculateHealthScore(overview);
+  const messages = generateHealthMessages(overview, referenceList);
+
+  let assessment = "";
+  if (healthScore >= 80) {
+    assessment = "전반적으로 건강한 상태입니다. 현재 생활습관을 유지하세요.";
+  } else if (healthScore >= 60) {
+    assessment =
+      "일부 개선이 필요한 항목이 있습니다. 생활습관 개선을 통해 건강을 관리하세요.";
+  } else {
+    assessment =
+      "건강 관리에 각별한 주의가 필요합니다. 전문의 상담을 권장합니다.";
+  }
+
+  return {
+    score: healthScore,
+    assessment,
+    messages,
+  };
 };
