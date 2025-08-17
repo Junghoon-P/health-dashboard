@@ -1,7 +1,19 @@
 import axios from "axios";
 
+// 환경에 따라 다른 base URL 사용
+const getBaseURL = () => {
+  if (import.meta.env.DEV) {
+    // 개발 환경: Vite 프록시 사용
+    return "/candiy";
+  } else {
+    // 프로덕션 환경: 직접 API 호출 (CORS 설정 필요) 또는 Vercel 프록시 사용
+    return "/candiy"; // Vercel 프록시 사용
+    // return "https://api.candiy.io"; // 직접 호출 시 (CORS 설정 필요)
+  }
+};
+
 export const axiosClient = axios.create({
-  baseURL: "/candiy", // <-- 프록시 경유
+  baseURL: getBaseURL(),
   headers: {
     "Content-Type": "application/json",
   },

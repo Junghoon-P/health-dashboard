@@ -1,18 +1,12 @@
 import { useState, useEffect } from "react";
 
 interface AuthPendingStateProps {
-  multiFactorInfo?: {
-    transactionId?: string;
-    jobIndex?: number;
-    threadIndex?: number;
-  } | null;
   onCompleteAuth: () => void;
   onCancel: () => void;
   isLoading: boolean;
 }
 
 const AuthPendingState = ({
-  multiFactorInfo,
   onCompleteAuth,
   onCancel,
   isLoading,
@@ -68,17 +62,6 @@ const AuthPendingState = ({
               <span>인증 완료 시간: {formatTime(timeLeft)}</span>
             )}
           </p>
-          <div className="bg-gray-50 p-3 rounded text-sm mb-4">
-            <p>
-              <strong>Transaction ID:</strong> {multiFactorInfo?.transactionId}
-            </p>
-            <p>
-              <strong>Job Index:</strong> {multiFactorInfo?.jobIndex}
-            </p>
-            <p>
-              <strong>Thread Index:</strong> {multiFactorInfo?.threadIndex}
-            </p>
-          </div>
           <div className="flex gap-2">
             <button
               onClick={onCompleteAuth}

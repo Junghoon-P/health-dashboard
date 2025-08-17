@@ -51,7 +51,6 @@ const CheckupVerifyPage = () => {
   return (
     <CheckupLayout title="본인인증 진행">
       <AuthPendingState
-        multiFactorInfo={multiFactorInfo}
         onCompleteAuth={handleCompleteAuth}
         onCancel={handleCancel}
         isLoading={isLoading}

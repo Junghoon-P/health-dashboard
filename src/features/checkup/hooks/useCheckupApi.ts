@@ -78,12 +78,15 @@ export const useCheckupApi = () => {
   });
 
   // 초기 요청 시작
-  const startCheckup = async () => {
-    if (!formData) {
+  const startCheckup = async (
+    requestData?: Omit<CheckupRequest, "isContinue" | "multiFactorInfo">
+  ) => {
+    const dataToUse = requestData || formData;
+    if (!dataToUse) {
       setError(new Error("폼 데이터가 없습니다."));
       return;
     }
-    return await initialRequest.mutateAsync(formData);
+    return await initialRequest.mutateAsync(dataToUse);
   };
 
   // 추가인증 완료 후 최종 데이터 요청

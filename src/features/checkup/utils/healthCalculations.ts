@@ -250,11 +250,6 @@ export const generateHealthMessages = (
 
   if (!referenceList) return messages;
 
-  // 참고치에서 정상A, 정상B, 질환의심 기준 찾기
-  const normalA = referenceList.find((ref) => ref.refType === "정상A");
-  const normalB = referenceList.find((ref) => ref.refType === "정상B");
-  const disease = referenceList.find((ref) => ref.refType === "질환의심");
-
   // BMI 메시지
   const bmi = calculateBMI(overview.height, overview.weight);
   if (bmi) {

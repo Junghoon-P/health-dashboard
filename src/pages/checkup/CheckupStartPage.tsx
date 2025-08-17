@@ -27,7 +27,7 @@ const CheckupStartPage = () => {
   const handleSubmit = async () => {
     if (validateForm()) {
       setFormData(formData);
-      await startCheckup();
+      await startCheckup(formData);
     }
   };
 
