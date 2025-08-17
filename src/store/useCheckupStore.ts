@@ -100,8 +100,9 @@ export const useCheckupNavigation = () => {
     shouldRedirectTo: (): string | null => {
       switch (step) {
         case "initial":
-        case "error":
           return "/checkup/start";
+        case "error":
+          return "/checkup/error";
         case "pending_auth":
           return "/checkup/verify";
         case "completed":
