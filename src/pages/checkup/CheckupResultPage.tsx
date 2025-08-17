@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckupResults } from "@/features/checkup/components";
 import { useCheckupStore, useCheckupNavigation } from "@/store/useCheckupStore";
+import { CheckupLayout } from "@/components";
 
 const CheckupResultPage = () => {
   const navigate = useNavigate();
@@ -33,19 +34,9 @@ const CheckupResultPage = () => {
   }
 
   return (
-    <main className="min-h-screen">
-      <header className="sticky top-0 z-10 bg-white border-b">
-        <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Health Dashboard</h1>
-        </div>
-      </header>
-
-      <section className="mx-auto min-w-[320px] max-w-6xl px-4 py-8">
-        <h2 className="text-2xl font-bold mb-6">건강검진 결과</h2>
-
-        <CheckupResults finalData={finalData} onNewQuery={handleNewQuery} />
-      </section>
-    </main>
+    <CheckupLayout title="건강검진 결과">
+      <CheckupResults finalData={finalData} onNewQuery={handleNewQuery} />
+    </CheckupLayout>
   );
 };
 
