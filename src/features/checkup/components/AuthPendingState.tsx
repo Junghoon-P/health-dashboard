@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 interface AuthPendingStateProps {
   multiFactorInfo?: {
     transactionId?: string;
@@ -15,6 +17,34 @@ const AuthPendingState = ({
   onCancel,
   isLoading,
 }: AuthPendingStateProps) => {
+  const [timeLeft, setTimeLeft] = useState(270); // 4분 30초 = 270초
+  const [isExpired, setIsExpired] = useState(false);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      setIsExpired(true);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setIsExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}분 ${remainingSeconds.toString().padStart(2, "0")}초`;
+  };
+
   return (
     <div className="rounded-2xl border bg-white shadow-sm">
       <div className="px-6 py-4 border-b border-gray-100">
@@ -30,7 +60,13 @@ const AuthPendingState = ({
           <p className="text-yellow-700 mb-4">
             선택하신 간편인증 앱에서 본인인증을 완료해주세요.
             <br />
-            인증 완료 시간: 4분 30초
+            {isExpired ? (
+              <span className="text-red-600 font-semibold">
+                인증 시간이 만료되었습니다
+              </span>
+            ) : (
+              <span>인증 완료 시간: {formatTime(timeLeft)}</span>
+            )}
           </p>
           <div className="bg-gray-50 p-3 rounded text-sm mb-4">
             <p>
