@@ -1,8 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* 앱 전역 기본값(선호에 맞춰 가볍게) */
 :root {
   color-scheme: light;
 }
