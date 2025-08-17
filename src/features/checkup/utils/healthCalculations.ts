@@ -13,11 +13,22 @@ export type EvaluationType =
   | "단순"
   | "휴무";
 
+// severity 타입
+export type SeverityType = "normal" | "caution" | "warning" | "danger";
+
 // 판정 정보 타입
 export type EvaluationInfo = {
   label: string;
   description: string;
-  severity: "normal" | "caution" | "warning" | "danger";
+  severity: SeverityType;
+};
+
+// severity별 스타일 매핑
+export const SEVERITY_STYLES: Record<SeverityType, string> = {
+  normal: "bg-green-100 text-green-800",
+  caution: "bg-yellow-100 text-yellow-800",
+  warning: "bg-orange-100 text-orange-800",
+  danger: "bg-red-100 text-red-800",
 };
 
 // 건강검진 판정 매핑
@@ -55,6 +66,11 @@ export const getEvaluationInfo = (evaluation?: string): EvaluationInfo => {
       severity: "normal",
     }
   );
+};
+
+// severity에 따른 스타일 조회 함수
+export const getSeverityStyle = (severity: SeverityType): string => {
+  return SEVERITY_STYLES[severity];
 };
 
 // BMI 계산 및 상태 판정

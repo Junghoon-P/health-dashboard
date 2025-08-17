@@ -23,6 +23,7 @@ import {
   calculateHealthScore,
   getOverallHealthAssessment,
   getEvaluationInfo,
+  getSeverityStyle,
 } from "../utils/healthCalculations";
 import BMIChart from "./charts/BMIChart";
 import HealthScoreChart from "./charts/HealthScoreChart";
@@ -102,22 +103,6 @@ const CheckupResults = ({ finalData, onNewQuery }: CheckupResultsProps) => {
   );
 
   const evaluationInfo = getEvaluationInfo(overview.evaluation);
-
-  // severity에 따른 스타일 함수
-  const getSeverityStyle = (severity: string) => {
-    switch (severity) {
-      case "normal":
-        return "bg-green-100 text-green-800";
-      case "caution":
-        return "bg-yellow-100 text-yellow-800";
-      case "warning":
-        return "bg-orange-100 text-orange-800";
-      case "danger":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   return (
     <div className="space-y-4 sm:space-y-6">
