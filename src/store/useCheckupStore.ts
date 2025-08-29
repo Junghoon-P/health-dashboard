@@ -32,6 +32,8 @@ interface CheckupActions {
   setLoading: (loading: boolean) => void;
   setError: (error: Error | null) => void;
   resetStore: () => void;
+  // 에러만 클리어하고 데이터는 보존
+  clearErrorAndRetry: () => void;
 }
 
 type CheckupStore = CheckupState & CheckupActions;
@@ -77,6 +79,15 @@ export const useCheckupStore = create<CheckupStore>()(
 
         resetStore: () => {
           set(initialState);
+        },
+
+        clearErrorAndRetry: () => {
+          set((state) => ({
+            ...state,
+            error: null,
+            isLoading: false,
+            step: state.formData ? "initial" : "initial",
+          }));
         },
       }),
       {

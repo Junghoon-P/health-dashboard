@@ -4,10 +4,15 @@ import { CheckupLayout } from "@/components";
 
 const CheckupErrorPage = () => {
   const navigate = useNavigate();
-  const { error, resetStore } = useCheckupStore();
+  const { error, formData, resetStore, clearErrorAndRetry } = useCheckupStore();
 
   const handleGoHome = () => {
     resetStore();
+    navigate("/checkup/start");
+  };
+
+  const handleRetryWithData = () => {
+    clearErrorAndRetry();
     navigate("/checkup/start");
   };
 
@@ -46,12 +51,26 @@ const CheckupErrorPage = () => {
           </p>
         </div>
 
-        <button
-          onClick={handleGoHome}
-          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-        >
-          홈으로 돌아가기
-        </button>
+        <div className="space-y-3">
+          {formData && (
+            <button
+              onClick={handleRetryWithData}
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              입력한 정보 유지하고 다시 시도
+            </button>
+          )}
+          <button
+            onClick={handleGoHome}
+            className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+              formData
+                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+          >
+            처음부터 다시 시작
+          </button>
+        </div>
       </div>
     </CheckupLayout>
   );
